@@ -16,6 +16,9 @@ return {
           file_ignore_patterns = {
             "node_modules",
             "dist",
+            "build",
+            "target",
+            ".git",
           },
           mappings = {
             i = {
