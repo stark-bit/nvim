@@ -33,7 +33,7 @@ return {
         return args[1]
       end
 
-       -- https://github.com/L3MON4D3/LuaSnip/blob/master/Examples/snippets.lua
+      -- https://github.com/L3MON4D3/LuaSnip/blob/master/Examples/snippets.lua
 
 
       ls.filetype_extend("javascript", { "jsdoc" })
@@ -51,25 +51,73 @@ return {
       end, { silent = true })
 
       ls.add_snippets("all", {
+
         s("fn", {
-          -- Simple static text.
           t("//Parameters: "),
-          -- function, first parameter is the function, second the Placeholders
-          -- whose text it gets as input.
           f(copy, 2),
           t({ "", "function " }),
-          -- Placeholder/Insert.
           i(1),
           t("("),
-          -- Placeholder with initial text.
           i(2, "int foo"),
-          -- Linebreak
           t({ ") {", "\t" }),
-          -- Last Placeholder, exit Point of the snippet.
           i(0),
           t({ "", "}" }),
         }),
 
+        s("rlg", {
+          t({ "console.log('rei " }),
+          i(1, "some text"),
+          t("', "),
+          i(2, "variable"),
+          t(");"),
+          i(0),
+        }),
+        s("switch", {
+          t({ "switch (" }),
+          i(1, "expression"),
+          t({ ") {", "\tcase " }),
+          i(2, "value1"),
+          t({ ":", "\t\t" }),
+          i(3, "// code"),
+          t({ "", "\t\tbreak;", "", "\tcase " }),
+          i(4, "value2"),
+          t({ ":", "\t\t" }),
+          i(5, "// code"),
+          t({ "", "\t\tbreak;", "", "\tdefault:", "\t\t" }),
+          i(6, "// default code"),
+          t({ "", "\t\tbreak;", "}" }),
+          i(0),
+        }),
+        s("useStateSnip", {
+          t("const ["),
+          i(1, "state"),
+          t(", set"),
+          f(function(args)
+            return args[1][1]:gsub("^%l", string.upper) -- Capitalizes the first letter
+          end, { 1 }),
+          t("] = useState("),
+          i(2, "initialValue"),
+          t(");"),
+          i(0),
+        }),
+        s("useEffectSnip", {
+          t("useEffect(() => {"),
+          t({ "", "\t" }),
+          i(1, "// effect code"),
+          t({ "", "}, [" }),
+          i(2, "// dependencies"),
+          t("]);"),
+          i(0),
+        }),
+      })
+
+      ls.add_snippets("go", {
+        s("err", {
+          t("if err != nil {"),
+          t({ "", "\treturn err", "" }),
+          t("}"),
+          i(0),
+        })
       })
     end,
   }
