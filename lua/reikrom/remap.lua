@@ -54,6 +54,9 @@ vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/reikrom/packer.lua
 vim.keymap.set("n", "<leader>mr1", "<cmd>CellularAutomaton make_it_rain<CR>");
 vim.keymap.set("n", "<leader>mr2", "<cmd>CellularAutomaton game_of_life<CR>");
 
+-- command in curr buffer's dir
+vim.keymap.set("n", "<leader>dc", ":! (cd %:p:h && )<Left>");
+
 -- this is a nice shortcut
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")
