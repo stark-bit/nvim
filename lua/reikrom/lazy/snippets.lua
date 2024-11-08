@@ -32,6 +32,11 @@ return {
       local function copy(args)
         return args[1]
       end
+      -- Helper function to generate random hex color
+      local function random_hex()
+        local hex = string.format("#%02x%02x%02x", math.random(0, 255), math.random(0, 255), math.random(0, 255))
+        return hex
+      end
 
       -- https://github.com/L3MON4D3/LuaSnip/blob/master/Examples/snippets.lua
 
@@ -41,8 +46,8 @@ return {
       --- TODO: What is expand?
       vim.keymap.set({ "i" }, "<C-s>e", function() ls.expand() end, { silent = true })
 
-      vim.keymap.set({ "i", "s" }, "<C-s>;", function() ls.jump(1) end, { silent = true })
-      vim.keymap.set({ "i", "s" }, "<C-s>,", function() ls.jump(-1) end, { silent = true })
+      vim.keymap.set({ "i", "s" }, "<C-s>n", function() ls.jump(1) end, { silent = true })
+      vim.keymap.set({ "i", "s" }, "<C-s>p", function() ls.jump(-1) end, { silent = true })
 
       vim.keymap.set({ "i", "s" }, "<C-E>", function()
         if ls.choice_active() then
@@ -53,25 +58,45 @@ return {
       ls.add_snippets("all", {
 
         s("fn", {
-          t("//Parameters: "),
-          f(copy, 2),
-          t({ "", "function " }),
-          i(1),
-          t("("),
-          i(2, "int foo"),
-          t({ ") {", "\t" }),
+          t("const "),
+          i(1, "functionName"),
+          t(" = ("),
+          i(2, "param"),
+          t(": "),
+          i(3, "string"),
+          t(") => {"),
+          t({ "", "\t" }),
           i(0),
           t({ "", "}" }),
         }),
-
-        s("rlg", {
-          t({ "console.log('rei " }),
-          i(1, "some text"),
-          t("', "),
-          i(2, "variable"),
+        s("rlog", {
+          t("console.log('rei "),
+          f(copy, 1),
+          t("',"),
+          i(1, ""),
           t(");"),
           i(0),
         }),
+        s("rlog2", {
+          t("console.log('%cRei: "),
+          f(copy, 1),
+          f(function() return "','background: " .. random_hex() .. "; color: white; font-size: 16px'," end),
+          i(1, ""),
+          t(");"),
+          i(0),
+        }),
+        s("todo", {
+          t("// rei TODO: "),
+          i(1, ""),
+          i(0),
+        }),
+        s("jsx comment", {
+          t("{/*"),
+          i(1, ""),
+          t("*/}"),
+          i(0),
+        }),
+
         s("switch", {
           t({ "switch (" }),
           i(1, "expression"),
@@ -92,9 +117,7 @@ return {
           t("const ["),
           i(1, "state"),
           t(", set"),
-          f(function(args)
-            return args[1][1]:gsub("^%l", string.upper) -- Capitalizes the first letter
-          end, { 1 }),
+          f(function(args) return args[1][1]:gsub("^%l", string.upper) end, { 1 }),
           t("] = useState("),
           i(2, "initialValue"),
           t(");"),

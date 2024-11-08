@@ -52,6 +52,6 @@ vim.keymap.set("n", "<leader>dc", ":! (cd %:p:h && )<Left>");
 
 
 -- run prettier on staged files and current buff file
-vim.keymap.set("n", "<leader>pws",
+vim.keymap.set("n", "<leader>pwc",
   "<cmd>!npx prettier --write $(git diff --cached --name-only --diff-filter=ACMRTUXB | xargs)<CR>", { silent = true })
 vim.keymap.set("n", "<leader>pwf", "<cmd>!npx prettier --write %:p<CR>", { silent = true })
