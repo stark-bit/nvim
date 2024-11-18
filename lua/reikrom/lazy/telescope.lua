@@ -23,11 +23,11 @@ return {
       path_display = { "truncate" },
       dynamic_preview_title = true,
       file_ignore_patterns = {
-        "node_modules",
-        "dist",
-        "build",
-        "target",
-        ".git",
+        "node_modules/",
+        "dist/",
+        "build/",
+        "target/",
+        ".git/",
       },
 
 
