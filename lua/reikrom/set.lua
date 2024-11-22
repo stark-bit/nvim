@@ -37,4 +37,16 @@ vim.opt.foldlevel = 99
 vim.g.markdown_folding = 1
 
 
+vim.opt.fileformats = "unix,dos,mac"
+
+-- STOP ftplugin from resetting comment formats
+vim.api.nvim_create_autocmd("BufEnter", {
+    callback = function()
+        vim.opt.formatoptions:remove("c")
+        vim.opt.formatoptions:remove("r")
+        vim.opt.formatoptions:remove("o")
+    end,
+})
+
+-- set
 

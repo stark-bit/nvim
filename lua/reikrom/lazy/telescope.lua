@@ -18,16 +18,16 @@ return {
           n = {
             ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
           }
-        }
-      },
-      path_display = { "truncate" },
-      dynamic_preview_title = true,
-      file_ignore_patterns = {
-        "node_modules/",
-        "dist/",
-        "build/",
-        "target/",
-        ".git/",
+        },
+        path_display = { "truncate" },
+        dynamic_preview_title = true,
+        file_ignore_patterns = {
+          "node_modules/",
+          "dist/",
+          "build/",
+          "target/",
+          ".git/",
+        },
       },
 
 
