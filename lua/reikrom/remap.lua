@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+--vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
@@ -55,3 +55,6 @@ vim.keymap.set("n", "<leader>dc", ":! (cd %:p:h && )<Left>");
 vim.keymap.set("n", "<leader>pwc",
   "<cmd>!npx prettier --write $(git diff --cached --name-only --diff-filter=ACMRTUXB | xargs)<CR>", { silent = true })
 vim.keymap.set("n", "<leader>pwf", "<cmd>!npx prettier --write %:p<CR>", { silent = true })
+
+
+vim.keymap.set('n', '<C-z>', '<Nop>')
