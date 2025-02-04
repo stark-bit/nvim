@@ -18,6 +18,8 @@ return {
           ["<C-k>"] = false,
           ["<C-j>"] = false,
           ["<C-c>"] = false,
+          ["<C-s>"] = false,
+          ["<C-t>"] = false,
           ["`"] = false,
           ["<C-x>"] = { "actions.select_split", opts = { vertical = true } },
         },
