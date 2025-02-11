@@ -21,6 +21,7 @@ return {
           ["<C-s>"] = false,
           ["<C-t>"] = false,
           ["<leader>T"] = false,
+          ["<leader>a"] = false,
           ["`"] = false,
           ["<C-x>"] = { "actions.select_split", opts = { vertical = true } },
         },
