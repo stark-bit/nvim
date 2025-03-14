@@ -85,6 +85,11 @@ return {
           t(");"),
           i(0),
         }),
+        s("debug", {
+          t("debugger; // eslint-disable-line no-debugger "),
+          i(1, ""),
+          i(0),
+        }),
         s("todo", {
           t("// rei TODO: "),
           i(1, ""),
