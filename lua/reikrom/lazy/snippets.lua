@@ -85,7 +85,7 @@ return {
           t(");"),
           i(0),
         }),
-        s("debug", {
+        s("rdebug", {
           t("debugger; // eslint-disable-line no-debugger "),
           i(1, ""),
           i(0),
