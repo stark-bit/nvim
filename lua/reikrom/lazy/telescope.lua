@@ -27,11 +27,9 @@ return {
           "build/",
           "target/",
           ".git/",
+          "public/static/libs/pdf"
         },
       },
-
-
-
     })
 
     local builtin = require('telescope.builtin')

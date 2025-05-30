@@ -46,6 +46,7 @@ return {
       --- TODO: What is expand?
       vim.keymap.set({ "i" }, "<C-s>e", function() ls.expand() end, { silent = true })
 
+      --- Jump to next snippet place
       vim.keymap.set({ "i", "s" }, "<C-s>n", function() ls.jump(1) end, { silent = true })
       vim.keymap.set({ "i", "s" }, "<C-s>p", function() ls.jump(-1) end, { silent = true })
 
