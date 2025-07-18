@@ -26,7 +26,6 @@ return {
         },
         path_display = { "truncate" },
         dynamic_preview_title = true,
-        hidden = true,
         file_ignore_patterns = {
           "node_modules/",
           "dist/",
@@ -34,22 +33,8 @@ return {
           "target/",
           ".git/",
           "public/static/libs/pdf",
-          "lazy%-lock%.json"
-        },
-      },
-      pickers = {
-        find_files = {
-          hidden = true,
-        },
-        live_grep = {
-          additional_args = function()
-            return { "--hidden" }
-          end
-        },
-        grep_string = {
-          additional_args = function()
-            return { "--hidden" }
-          end
+          "lazy%-lock%.json",
+          "package%-lock%.json"
         },
       },
     })
@@ -76,12 +61,23 @@ return {
       end)
 
 
-    vim.keymap.set('n', '<leader>sa',
+    vim.keymap.set('n', '<leader>saf',
       function()
-        builtin.find_files({ cwd = git_root(), no_ignore = true })
+        builtin.find_files({ cwd = git_root(), no_ignore = true, hidden = true })
       end)
 
+    vim.keymap.set('n', '<leader>sas', function()
+      builtin.live_grep({
+        hidden = true,
+        no_ignore = true,
+        additional_args = function(args)
+          return vim.list_extend(args, { "--hidden", "--no-ignore" })
+        end
+      })
+    end)
+
     vim.keymap.set('n', '<leader>ss', builtin.live_grep, {})
+
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, {})
     -- New keybinding for live_grep within quickfix list files
     vim.keymap.set('n', '<leader>sq', function()
