@@ -17,11 +17,14 @@ return {
       defaults = {
         mappings = {
           i = {
-            ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
+            -- send only
+            ["<C-q>"] = actions.smart_send_to_qflist,
+            -- send + open
+            ["<C-S-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
           },
           n = {
-            ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
-            ['d'] = require('telescope.actions').delete_buffer,
+            ["<C-q>"] = actions.smart_send_to_qflist,
+            ['d'] = actions.delete_buffer,
           }
         },
         path_display = { "truncate" },
@@ -39,6 +42,7 @@ return {
       },
     })
 
+
     local builtin = require('telescope.builtin')
     vim.keymap.set('n', '<leader>sr', '<Cmd>Telescope resume<CR>')
     vim.keymap.set('n', '<leader>sk', '<Cmd>Telescope keymaps<CR>')
@@ -47,14 +51,15 @@ return {
     vim.keymap.set('n', '<leader>sw', function()
       local word = vim.fn.expand("<cword>")
       builtin.grep_string({ search = word })
-    end)
+    end, { desc = "search for word" })
     vim.keymap.set('n', '<leader>sW', function()
       local word = vim.fn.expand("<cWORD>")
       builtin.grep_string({ search = word })
-    end)
+    end, { desc = "search for wHole word" })
     vim.keymap.set('n', '<leader>st', function()
       builtin.grep_string({ search = vim.fn.input("Grep > ") })
     end)
+    vim.keymap.set('n', '<leader>q', '<cmd>copen<CR>', { desc = "Open quickfix list" })
     vim.keymap.set('n', '<leader>ls',
       function()
         require('telescope.builtin').buffers({ sort_lastused = true })
@@ -79,8 +84,9 @@ return {
     vim.keymap.set('n', '<leader>ss', builtin.live_grep, {})
 
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, {})
+
     -- New keybinding for live_grep within quickfix list files
-    vim.keymap.set('n', '<leader>sq', function()
+    vim.keymap.set('n', '<leader>sqs', function()
       local qflist = vim.fn.getqflist({ items = 0, all = 1 })
       local unique_files = {}
       local files_hash = {}
@@ -101,6 +107,59 @@ return {
         })
       else
         print("Quickfix list is empty or contains no valid files.")
+      end
+    end)
+
+    vim.keymap.set('n', '<leader>sqf', function()
+      local qflist = vim.fn.getqflist({ items = 0, all = 1 })
+      local unique_files = {}
+      local files_hash = {}
+      for _, item in ipairs(qflist.items) do
+        if item.bufnr ~= 0 then
+          local filename = vim.fn.bufname(item.bufnr)
+          if filename ~= "" and not files_hash[filename] then
+            files_hash[filename] = true
+            table.insert(unique_files, filename)
+          end
+        end
+      end
+      if #unique_files > 0 then
+        builtin.find_files({
+          search_dirs = unique_files
+        })
+      else
+        print("Quickfix list is empty or contains no valid files.")
+      end
+    end)
+
+
+    vim.keymap.set('n', '<leader>sef', function()
+      local exclude_pattern = vim.fn.input("Exclude pattern > ")
+      if exclude_pattern ~= "" then
+        local qflist = vim.fn.getqflist({ items = 0, all = 1 })
+        local unique_files = {}
+        local files_hash = {}
+
+        for _, item in ipairs(qflist.items) do
+          if item.bufnr ~= 0 then
+            local filename = vim.fn.bufname(item.bufnr)
+            if filename ~= "" and not files_hash[filename] then
+              -- Check if filename matches the exclude pattern
+              if not string.match(filename, exclude_pattern) then
+                files_hash[filename] = true
+                table.insert(unique_files, filename)
+              end
+            end
+          end
+        end
+
+        if #unique_files > 0 then
+          builtin.find_files({
+            search_dirs = unique_files
+          })
+        else
+          print("No files remaining after exclusion or quickfix list is empty.")
+        end
       end
     end)
   end

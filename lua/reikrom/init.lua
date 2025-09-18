@@ -39,16 +39,16 @@ autocmd('LspAttach', {
   group = ReikromGroup,
   callback = function(e)
     local opts = { buffer = e.buf }
-    vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-    vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts)
-    vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
-    vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
-    vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-    vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
-    vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
-    vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
-    vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, opts)
-    vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts)
+    vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts, { desc = "gto definition" })
+    vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, opts, { desc = "gto references" })
+    vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts, { desc = "hover" })
+    vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts, { desc = "symbols?" })
+    vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts, { desc = "diagnostic open float" })
+    vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts, { desc = "code actions" })
+    vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts, { desc = "rename" })
+    vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts, { desc = "signature help" })
+    vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, opts,{ desc = "lsp prev" })
+    vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts, { desc = "lsp next" })
   end
 })
 
