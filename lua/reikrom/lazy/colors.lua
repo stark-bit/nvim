@@ -1,9 +1,28 @@
+local theme_cycle = {
+  "rose-pine",
+--  "tokyonight",
+  "gruvbox",
+--  "brightburn",
+}
+
+local theme_index = 0
+
 function ColorMyPencils(color)
-  color = color or "rose-pine"
+  color = color or "gruvbox"
   vim.cmd.colorscheme(color)
 
   vim.api.nvim_set_hl(0, "Normal", { bg = "#1d1b29" })
   vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+end
+
+function CycleColorScheme()
+  theme_index = (theme_index % #theme_cycle) + 1
+  ColorMyPencils(theme_cycle[theme_index])
+end
+
+function CycleColorSchemePrev()
+  theme_index = ((theme_index - 2) % #theme_cycle) + 1
+  ColorMyPencils(theme_cycle[theme_index])
 end
 
 return {

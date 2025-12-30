@@ -41,7 +41,17 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 vim.keymap.set("n", "<leader>rf", "<cmd>e!<CR>")
 
-vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/reikrom/packer.lua<CR>");
+-- cycle colorschemes
+vim.keymap.set("n", "<leader>tc", function()
+  CycleColorScheme()
+end, { desc = "cycle colorscheme" })
+vim.keymap.set("n", "]T", function()
+  CycleColorScheme()
+end, { desc = "next colorscheme" })
+vim.keymap.set("n", "[T", function()
+  CycleColorSchemePrev()
+end, { desc = "prev colorscheme" })
+
 -- when thinking gets thought, relax with mr1 and mr2
 vim.keymap.set("n", "<leader>mr1", "<cmd>CellularAutomaton make_it_rain<CR>");
 vim.keymap.set("n", "<leader>mr2", "<cmd>CellularAutomaton game_of_life<CR>");
