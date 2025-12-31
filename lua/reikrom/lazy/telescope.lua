@@ -57,18 +57,18 @@ return {
       builtin.grep_string({ search = word })
     end, { desc = "search for wHole word" })
     vim.keymap.set('n', '<leader>st', function()
-      builtin.grep_string({ search = vim.fn.input("Grep > ") })
+      builtin.grep_string({ search = vim.fn.input("Grep > ") ,desc = 'search string'})
     end)
     vim.keymap.set('n', '<leader>q', '<cmd>copen<CR>', { desc = "Open quickfix list" })
     vim.keymap.set('n', '<leader>ls',
       function()
-        require('telescope.builtin').buffers({ sort_lastused = true })
+        require('telescope.builtin').buffers({ sort_lastused = true ,desc = 'Last search'})
       end)
 
 
     vim.keymap.set('n', '<leader>saf',
       function()
-        builtin.find_files({ cwd = git_root(), no_ignore = true, hidden = true })
+        builtin.find_files({ cwd = git_root(), no_ignore = true, hidden = true, desc = 'search all files' })
       end)
 
     vim.keymap.set('n', '<leader>sas', function()
@@ -81,9 +81,9 @@ return {
       })
     end)
 
-    vim.keymap.set('n', '<leader>ss', builtin.live_grep, {})
+    vim.keymap.set('n', '<leader>ss', builtin.live_grep, { desc = 'Live grep'})
 
-    vim.keymap.set('n', '<leader>sh', builtin.help_tags, {})
+    vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = 'search help'})
 
     -- New keybinding for live_grep within quickfix list files
     vim.keymap.set('n', '<leader>sqs', function()
