@@ -67,3 +67,6 @@ vim.keymap.set("n", "<leader>pwf", "<cmd>!npx prettier --write %:p<CR>", { silen
 
 
 vim.keymap.set('n', '<C-z>', '<Nop>')
+
+vim.keymap.set('n', '<leader>h', '<Cmd>:TailwindFoldToggle <CR>')
+
