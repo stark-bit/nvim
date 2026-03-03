@@ -2,6 +2,45 @@ local git_root = function()
   return vim.fn.system("git rev-parse --show-toplevel | tr -d '\n'")
 end
 
+-- Patterns to exclude with <leader>sx* commands (find files / live grep)
+-- Add new patterns here as needed
+local exclude_patterns = {
+  -- Tests
+  "%.spec%.",
+  "%.test%.",
+  "__tests__/",
+  "__mocks__/",
+  "%.stories%.",
+  -- Docs
+  "%.md$",
+  "%.mdx$",
+  -- Generated
+  "%.d%.ts$",
+  "%.snap$",
+}
+
+-- Convert Lua patterns to ripgrep glob patterns for live_grep
+local function get_rg_exclude_globs()
+  local globs = {}
+  local pattern_map = {
+    ["%.spec%."] = "!*.spec.*",
+    ["%.test%."] = "!*.test.*",
+    ["__tests__/"] = "!**/__tests__/**",
+    ["__mocks__/"] = "!**/__mocks__/**",
+    ["%.stories%."] = "!*.stories.*",
+    ["%.md$"] = "!*.md",
+    ["%.mdx$"] = "!*.mdx",
+    ["%.d%.ts$"] = "!*.d.ts",
+    ["%.snap$"] = "!*.snap",
+  }
+  for _, pattern in ipairs(exclude_patterns) do
+    if pattern_map[pattern] then
+      table.insert(globs, "--glob=" .. pattern_map[pattern])
+    end
+  end
+  return globs
+end
+
 return {
   "nvim-telescope/telescope.nvim",
 
@@ -82,6 +121,24 @@ return {
     end)
 
     vim.keymap.set('n', '<leader>ss', builtin.live_grep, { desc = 'Live grep'})
+
+    -- Exclude search: filters out tests, specs, docs, generated files
+    vim.keymap.set('n', '<leader>sxf', function()
+      builtin.find_files({
+        file_ignore_patterns = vim.list_extend(
+          vim.deepcopy(require('telescope.config').values.file_ignore_patterns or {}),
+          exclude_patterns
+        ),
+      })
+    end, { desc = 'Find files (exclude tests/docs)' })
+
+    vim.keymap.set('n', '<leader>sxs', function()
+      builtin.live_grep({
+        additional_args = function()
+          return get_rg_exclude_globs()
+        end
+      })
+    end, { desc = 'Live grep (exclude tests/docs)' })
 
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = 'search help'})
 
