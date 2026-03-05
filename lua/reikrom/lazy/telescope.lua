@@ -140,6 +140,26 @@ return {
       })
     end, { desc = 'Live grep (exclude tests/docs)' })
 
+    vim.keymap.set('n', '<leader>sxw', function()
+      local word = vim.fn.expand("<cword>")
+      builtin.grep_string({
+        search = word,
+        additional_args = function()
+          return get_rg_exclude_globs()
+        end
+      })
+    end, { desc = 'Search word (exclude tests/docs)' })
+
+    vim.keymap.set('n', '<leader>sxW', function()
+      local word = vim.fn.expand("<cWORD>")
+      builtin.grep_string({
+        search = word,
+        additional_args = function()
+          return get_rg_exclude_globs()
+        end
+      })
+    end, { desc = 'Search WORD (exclude tests/docs)' })
+
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = 'search help'})
 
     -- New keybinding for live_grep within quickfix list files
