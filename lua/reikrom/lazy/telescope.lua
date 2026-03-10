@@ -41,6 +41,50 @@ local function get_rg_exclude_globs()
   return globs
 end
 
+-- Helper: get unique files from quickfix list
+local function get_qf_files()
+  local qflist = vim.fn.getqflist({ items = 0, all = 1 })
+  local unique_files = {}
+  local files_hash = {}
+
+  for _, item in ipairs(qflist.items) do
+    if item.bufnr ~= 0 then
+      local filename = vim.fn.bufname(item.bufnr)
+      if filename ~= "" and not files_hash[filename] then
+        files_hash[filename] = true
+        table.insert(unique_files, filename)
+      end
+    end
+  end
+  return unique_files
+end
+
+-- Helper: filter quickfix list by excluding files containing pattern
+local function filter_qf_exclude(exclude_input)
+  if exclude_input == "" then return false end
+
+  local qflist = vim.fn.getqflist({ items = 0, all = 1 })
+  local filtered_items = {}
+
+  for _, item in ipairs(qflist.items) do
+    if item.bufnr ~= 0 then
+      local filename = vim.fn.bufname(item.bufnr)
+      if not string.find(filename, exclude_input, 1, true) then
+        table.insert(filtered_items, item)
+      end
+    end
+  end
+
+  if #filtered_items > 0 then
+    vim.fn.setqflist({}, 'r', { items = filtered_items, title = 'Filtered (excl: ' .. exclude_input .. ')' })
+    print(string.format("Quickfix: %d -> %d items (excluded '%s')", #qflist.items, #filtered_items, exclude_input))
+    return true
+  else
+    print("No files remaining after exclusion.")
+    return false
+  end
+end
+
 return {
   "nvim-telescope/telescope.nvim",
 
@@ -162,82 +206,58 @@ return {
 
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = 'search help'})
 
-    -- New keybinding for live_grep within quickfix list files
-    vim.keymap.set('n', '<leader>sqs', function()
-      local qflist = vim.fn.getqflist({ items = 0, all = 1 })
-      local unique_files = {}
-      local files_hash = {}
+    -- Forward declarations for sqs/sqf so they can re-invoke themselves
+    local open_sqs, open_sqf
 
-      for _, item in ipairs(qflist.items) do
-        if item.bufnr ~= 0 then
-          local filename = vim.fn.bufname(item.bufnr)
-          if filename ~= "" and not files_hash[filename] then
-            files_hash[filename] = true
-            table.insert(unique_files, filename)
-          end
-        end
-      end
+    -- New keybinding for live_grep within quickfix list files
+    open_sqs = function()
+      local unique_files = get_qf_files()
 
       if #unique_files > 0 then
         builtin.live_grep({
-          search_dirs = unique_files
+          search_dirs = unique_files,
+          attach_mappings = function(prompt_bufnr, map)
+            -- <C-e> to exclude files and refresh
+            map({ 'i', 'n' }, '<C-e>', function()
+              actions.close(prompt_bufnr)
+              vim.ui.input({ prompt = "Exclude files containing > " }, function(input)
+                if input and filter_qf_exclude(input) then
+                  vim.schedule(open_sqs)
+                end
+              end)
+            end)
+            return true -- keep default mappings
+          end,
         })
       else
         print("Quickfix list is empty or contains no valid files.")
       end
-    end)
+    end
+    vim.keymap.set('n', '<leader>sqs', open_sqs)
 
-    vim.keymap.set('n', '<leader>sqf', function()
-      local qflist = vim.fn.getqflist({ items = 0, all = 1 })
-      local unique_files = {}
-      local files_hash = {}
-      for _, item in ipairs(qflist.items) do
-        if item.bufnr ~= 0 then
-          local filename = vim.fn.bufname(item.bufnr)
-          if filename ~= "" and not files_hash[filename] then
-            files_hash[filename] = true
-            table.insert(unique_files, filename)
-          end
-        end
-      end
+    open_sqf = function()
+      local unique_files = get_qf_files()
+
       if #unique_files > 0 then
         builtin.find_files({
-          search_dirs = unique_files
+          search_dirs = unique_files,
+          attach_mappings = function(prompt_bufnr, map)
+            -- <C-e> to exclude files and refresh
+            map({ 'i', 'n' }, '<C-e>', function()
+              actions.close(prompt_bufnr)
+              vim.ui.input({ prompt = "Exclude files containing > " }, function(input)
+                if input and filter_qf_exclude(input) then
+                  vim.schedule(open_sqf)
+                end
+              end)
+            end)
+            return true -- keep default mappings
+          end,
         })
       else
         print("Quickfix list is empty or contains no valid files.")
       end
-    end)
-
-
-    vim.keymap.set('n', '<leader>sef', function()
-      local exclude_pattern = vim.fn.input("Exclude pattern > ")
-      if exclude_pattern ~= "" then
-        local qflist = vim.fn.getqflist({ items = 0, all = 1 })
-        local unique_files = {}
-        local files_hash = {}
-
-        for _, item in ipairs(qflist.items) do
-          if item.bufnr ~= 0 then
-            local filename = vim.fn.bufname(item.bufnr)
-            if filename ~= "" and not files_hash[filename] then
-              -- Check if filename matches the exclude pattern
-              if not string.match(filename, exclude_pattern) then
-                files_hash[filename] = true
-                table.insert(unique_files, filename)
-              end
-            end
-          end
-        end
-
-        if #unique_files > 0 then
-          builtin.find_files({
-            search_dirs = unique_files
-          })
-        else
-          print("No files remaining after exclusion or quickfix list is empty.")
-        end
-      end
-    end)
+    end
+    vim.keymap.set('n', '<leader>sqf', open_sqf)
   end
 }
