@@ -1,4 +1,4 @@
-return {
+local b =  {
     "jake-stewart/multicursor.nvim",
     branch = "1.0",
     config = function()
@@ -101,3 +101,4 @@ return {
         hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
     end
 }
+return { }
