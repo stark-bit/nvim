@@ -52,6 +52,9 @@ vim.keymap.set("n", "[T", function()
   CycleColorSchemePrev()
 end, { desc = "prev colorscheme" })
 
+vim.keymap.set("n", "<leader>o", function()
+  vim.cmd("!gh browse " .. vim.fn.expand("%") .. ":" .. vim.fn.line("."))
+end, { desc = "open line in browser" })
 -- when thinking gets thought, relax with mr1 and mr2
 vim.keymap.set("n", "<leader>mr1", "<cmd>CellularAutomaton make_it_rain<CR>");
 vim.keymap.set("n", "<leader>mr2", "<cmd>CellularAutomaton game_of_life<CR>");
