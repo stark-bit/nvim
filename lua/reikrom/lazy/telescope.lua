@@ -1,45 +1,70 @@
+-- Cached: only resolves once per session
+local _git_root_cache = nil
 local git_root = function()
-  return vim.fn.system("git rev-parse --show-toplevel | tr -d '\n'")
+  if not _git_root_cache then
+    _git_root_cache = vim.fn.system("git rev-parse --show-toplevel | tr -d '\n'")
+  end
+  return _git_root_cache
 end
 
--- Patterns to exclude with <leader>sx* commands (find files / live grep)
--- Add new patterns here as needed
-local exclude_patterns = {
-  -- Tests
-  "%.spec%.",
-  "%.test%.",
-  "__tests__/",
-  "__mocks__/",
-  "%.stories%.",
-  -- Docs
-  "%.md$",
-  "%.mdx$",
-  -- Generated
-  "%.d%.ts$",
-  "%.snap$",
+-- Glob patterns for live_grep exclusions (used with telescope's native glob_pattern)
+local fast_exclude_globs = {
+  "!node_modules/**",
+  "!.pnpm/**",
+  "!dist/**",
+  "!build/**",
+  "!out/**",
+  "!.next/**",
+  "!.vercel/**",
+  "!.cache/**",
+  "!.turbo/**",
+  "!.parcel-cache/**",
+  "!.vite/**",
+  "!.eslintcache",
+  "!coverage/**",
+  "!target/**",
+  "!storybook-static/**",
+  "!public/static/libs/pdf/**",
 }
 
--- Convert Lua patterns to ripgrep glob patterns for live_grep
-local function get_rg_exclude_globs()
-  local globs = {}
-  local pattern_map = {
-    ["%.spec%."] = "!*.spec.*",
-    ["%.test%."] = "!*.test.*",
-    ["__tests__/"] = "!**/__tests__/**",
-    ["__mocks__/"] = "!**/__mocks__/**",
-    ["%.stories%."] = "!*.stories.*",
-    ["%.md$"] = "!*.md",
-    ["%.mdx$"] = "!*.mdx",
-    ["%.d%.ts$"] = "!*.d.ts",
-    ["%.snap$"] = "!*.snap",
-  }
-  for _, pattern in ipairs(exclude_patterns) do
-    if pattern_map[pattern] then
-      table.insert(globs, "--glob=" .. pattern_map[pattern])
-    end
-  end
-  return globs
-end
+-- Extended globs: fast base + tests/stories/docs/generated
+local sxs_exclude_globs = vim.list_extend(vim.deepcopy(fast_exclude_globs), {
+  "!*.spec.*",
+  "!*.test.*",
+  "!**/__tests__/**",
+  "!**/__mocks__/**",
+  "!*.stories.*",
+  "!*.md",
+  "!*.mdx",
+  "!*.d.ts",
+  "!*.snap",
+})
+
+-- fd commands: cached at module load, zero overhead per keystroke
+local fd_base_command = {
+  "fd", "--type", "f", "--hidden", "--color", "never",
+  "--exclude", "node_modules",
+  "--exclude", ".pnpm",
+  "--exclude", "dist",
+  "--exclude", "build",
+  "--exclude", "out",
+  "--exclude", ".next",
+  "--exclude", ".vercel",
+  "--exclude", ".cache",
+  "--exclude", ".turbo",
+  "--exclude", ".parcel-cache",
+  "--exclude", ".vite",
+  "--exclude", "coverage",
+  "--exclude", "target",
+  "--exclude", "storybook-static",
+  "--exclude", ".git",
+}
+
+-- fd command for sxf: base + test dirs
+local fd_sxf_command = vim.list_extend(vim.deepcopy(fd_base_command), {
+  "--exclude", "__tests__",
+  "--exclude", "__mocks__",
+})
 
 -- Helper: get unique files from quickfix list
 local function get_qf_files()
@@ -131,19 +156,19 @@ return {
     vim.keymap.set('n', '<leader>sr', '<Cmd>Telescope resume<CR>')
     vim.keymap.set('n', '<leader>sk', '<Cmd>Telescope keymaps<CR>')
     vim.keymap.set('n', '<leader>sf', function()
-      builtin.find_files({ hidden = true })
+      builtin.find_files({ find_command = fd_base_command })
     end, {})
     vim.keymap.set('n', '<C-p>', builtin.git_files, {})
     vim.keymap.set('n', '<leader>sw', function()
       local word = vim.fn.expand("<cword>")
-      builtin.grep_string({ search = word })
+      builtin.grep_string({ search = word, glob_pattern = fast_exclude_globs })
     end, { desc = "search for word" })
     vim.keymap.set('n', '<leader>sW', function()
       local word = vim.fn.expand("<cWORD>")
-      builtin.grep_string({ search = word })
+      builtin.grep_string({ search = word, glob_pattern = fast_exclude_globs })
     end, { desc = "search for wHole word" })
     vim.keymap.set('n', '<leader>st', function()
-      builtin.grep_string({ search = vim.fn.input("Grep > ") ,desc = 'search string'})
+      builtin.grep_string({ search = vim.fn.input("Grep > "), glob_pattern = fast_exclude_globs })
     end)
     vim.keymap.set('n', '<leader>q', '<cmd>copen<CR>', { desc = "Open quickfix list" })
     vim.keymap.set('n', '<leader>ls',
@@ -165,45 +190,35 @@ return {
     end)
 
     vim.keymap.set('n', '<leader>ss', function()
-      builtin.live_grep({ hidden = true })
+      builtin.live_grep({ hidden = true, glob_pattern = fast_exclude_globs })
     end, { desc = 'Live grep' })
 
-    -- Exclude search: filters out tests, specs, docs, generated files
+    -- Raw search for debugging - NO exclusions, NO config
+    vim.keymap.set('n', '<leader>sz1', function()
+      builtin.live_grep({})
+    end, { desc = 'Live grep (raw, no filters)' })
+
+    -- Exclude search: filters out build/cache + tests/stories/docs/generated
     vim.keymap.set('n', '<leader>sxf', function()
       builtin.find_files({
-        file_ignore_patterns = vim.list_extend(
-          vim.deepcopy(require('telescope.config').values.file_ignore_patterns or {}),
-          exclude_patterns
-        ),
+        find_command = fd_sxf_command,
+        -- fd --exclude works on dir names; use Lua patterns for file-level filtering
+        file_ignore_patterns = { "%.spec%.", "%.test%.", "%.stories%.", "%.d%.ts$", "%.snap$" },
       })
     end, { desc = 'Find files (exclude tests/docs)' })
 
     vim.keymap.set('n', '<leader>sxs', function()
-      builtin.live_grep({
-        additional_args = function()
-          return get_rg_exclude_globs()
-        end
-      })
+      builtin.live_grep({ glob_pattern = sxs_exclude_globs })
     end, { desc = 'Live grep (exclude tests/docs)' })
 
     vim.keymap.set('n', '<leader>sxw', function()
       local word = vim.fn.expand("<cword>")
-      builtin.grep_string({
-        search = word,
-        additional_args = function()
-          return get_rg_exclude_globs()
-        end
-      })
+      builtin.grep_string({ search = word, glob_pattern = sxs_exclude_globs })
     end, { desc = 'Search word (exclude tests/docs)' })
 
     vim.keymap.set('n', '<leader>sxW', function()
       local word = vim.fn.expand("<cWORD>")
-      builtin.grep_string({
-        search = word,
-        additional_args = function()
-          return get_rg_exclude_globs()
-        end
-      })
+      builtin.grep_string({ search = word, glob_pattern = sxs_exclude_globs })
     end, { desc = 'Search WORD (exclude tests/docs)' })
 
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = 'search help'})
