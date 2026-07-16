@@ -25,14 +25,10 @@ vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 vim.keymap.set("n", "<C-s>", "<cmd>:w<CR>", { silent = true })
 -- nice
 vim.keymap.set("i", "<C-c>", "<Esc>")
--- exec curr file
- vim.keymap.set("n", "<leader><leader>", function()
-   vim.cmd("so")
-   end)
 
 vim.keymap.set("n", "Q", "<C-w>q")
 vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>")
-vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
+vim.keymap.set("n", "<leader>fF", vim.lsp.buf.format ,{desc = "format file"})
 
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
@@ -40,17 +36,6 @@ vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
 vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 vim.keymap.set("n", "<leader>rf", "<cmd>e!<CR>")
-
--- cycle colorschemes
-vim.keymap.set("n", "<leader>tc", function()
-  CycleColorScheme()
-end, { desc = "cycle colorscheme" })
-vim.keymap.set("n", "]T", function()
-  CycleColorScheme()
-end, { desc = "next colorscheme" })
-vim.keymap.set("n", "[T", function()
-  CycleColorSchemePrev()
-end, { desc = "prev colorscheme" })
 
 vim.keymap.set("n", "<leader>o", function()
   vim.cmd("!gh browse " .. vim.fn.expand("%") .. ":" .. vim.fn.line("."))
