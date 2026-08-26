@@ -1,7 +1,8 @@
 return {
   "eero-lehtinen/oklch-color-picker.nvim",
   event = "VeryLazy",
-  version = "*",
+  -- v5 requires Neovim 0.12+.
+  version = "^4",
   keys = {
     -- One handed keymap recommended, you will be using the mouse
     {
