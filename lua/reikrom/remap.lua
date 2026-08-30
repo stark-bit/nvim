@@ -37,9 +37,11 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 vim.keymap.set("n", "<leader>rf", "<cmd>e!<CR>")
 
-vim.keymap.set("n", "<leader>o", function()
+vim.keymap.set("n", "<leader>og", function()
   vim.cmd("!gh browse " .. vim.fn.expand("%") .. ":" .. vim.fn.line("."))
 end, { desc = "open line in browser" })
+
+vim.keymap.set("n", "<leader>om", "<cmd>MarkdownPreview<CR>", { desc = "markdown preview" })
 -- when thinking gets thought, relax with mr1 and mr2
 vim.keymap.set("n", "<leader>mr1", "<cmd>CellularAutomaton make_it_rain<CR>");
 vim.keymap.set("n", "<leader>mr2", "<cmd>CellularAutomaton game_of_life<CR>");
