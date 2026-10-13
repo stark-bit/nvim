@@ -38,7 +38,10 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 vim.keymap.set("n", "<leader>rf", "<cmd>e!<CR>")
 
 vim.keymap.set("n", "<leader>og", function()
-  vim.cmd("!gh browse " .. vim.fn.expand("%") .. ":" .. vim.fn.line("."))
+  local dir = vim.fn.expand("%:p:h")
+  local root = vim.fn.systemlist({ "git", "-C", dir, "rev-parse", "--show-toplevel" })[1]
+  local file = vim.fn.expand("%:p"):sub(#root + 2)
+  vim.system({ "gh", "browse", file .. ":" .. vim.fn.line(".") }, { cwd = root })
 end, { desc = "open line in browser" })
 
 vim.keymap.set("n", "<leader>om", "<cmd>MarkdownPreview<CR>", { desc = "markdown preview" })
