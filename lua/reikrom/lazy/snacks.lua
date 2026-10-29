@@ -24,6 +24,19 @@ return {
     picker = {
       enabled = true,
       sources = {
+        explorer = {
+          layout = {
+            preset = "sidebar",
+            preview = "main",
+          },
+          win = {
+            list = {
+              keys = {
+                ["P"] = { "toggle_preview", mode = { "n", "i" } },
+              },
+            },
+          },
+        },
         grep         = { format = fmt_no_content },
         grep_buffers = { format = fmt_no_content },
         grep_word    = { format = fmt_no_content },
